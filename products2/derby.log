@@ -1,0 +1,29 @@
+----------------------------------------------------------------
+Sun Jan 12 18:17:34 IST 2020:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-016f-9a8b-d307-000001bcb7a0 
+on database directory memory:C:\Users\eldar\git\angular-jwt-spring\products2\testdb with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Loaded from file:/C:/Users/eldar/.m2/repository/org/apache/derby/derby/10.14.2.0/derby-10.14.2.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_172-b11
+user.dir=C:\Users\eldar\git\angular-jwt-spring\products2
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Sun Jan 12 18:24:58 IST 2020:
+Shutting down instance a816c00e-016f-9a8b-d307-000001bcb7a0 on database directory memory:C:\Users\eldar\git\angular-jwt-spring\products2\testdb with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+----------------------------------------------------------------
+Sun Jan 12 18:25:05 IST 2020:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance 0d0600d0-016f-9a8b-d307-000001bcb7a0 
+on database directory memory:C:\Users\eldar\git\angular-jwt-spring\products2\testdb with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Loaded from file:/C:/Users/eldar/.m2/repository/org/apache/derby/derby/10.14.2.0/derby-10.14.2.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_172-b11
+user.dir=C:\Users\eldar\git\angular-jwt-spring\products2
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

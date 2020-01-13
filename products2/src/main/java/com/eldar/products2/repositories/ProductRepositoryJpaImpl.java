@@ -30,7 +30,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
 	}
 
 	@Override
-	public Product addProduct(Product product) {
+	public Product saveProduct(Product product) {
 		System.out.println(product);
 		return entityManager.merge(product);
 	}
