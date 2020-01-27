@@ -42,12 +42,13 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
 			if (p != null) {
 				entityManager.remove(p);
 				return "product removed: " + p;
-
+			} else {
+				return "product with id " + productId + " not found";
 			}
 		} catch (Exception e) {
 			System.out.println(e);
+			return "error: " + e.getMessage();
 		}
-		return "product with id " + productId + " not found";
 
 	}
 

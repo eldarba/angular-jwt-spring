@@ -3,6 +3,8 @@ package com.eldar.products2.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +33,13 @@ public class ProductRestController {
 	}
 
 	@GetMapping("/product/{id}")
-	public Product getProductById(@PathVariable("id") int productId) {
-		return productRepository.getProductById(productId);
+	public ResponseEntity<?> getProductById(@PathVariable("id") int productId) {
+		Product product = productRepository.getProductById(productId);
+		if (product != null) {
+			return new ResponseEntity<Product>(product, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<String>("product with id " + productId + " not found", HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@PostMapping("/product")
@@ -46,12 +53,13 @@ public class ProductRestController {
 	}
 
 	@PutMapping("/product")
-	public Product updateProduct(@RequestBody Product product) {
-		Product p = getProductById(product.getId());
+	public ResponseEntity<?> updateProduct(@RequestBody Product product) {
+		Product p = productRepository.getProductById(product.getId());
 		if (p != null) {
-			return productRepository.saveProduct(product);
+			p = productRepository.saveProduct(product);
+			return new ResponseEntity<>(p, HttpStatus.OK);
 		} else {
-			return null;
+			return new ResponseEntity<>("product with id " + product.getId() + " not found", HttpStatus.BAD_REQUEST);
 		}
 	}
 }
