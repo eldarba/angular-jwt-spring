@@ -20,14 +20,38 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class ServerApplication {
 
 	public static void main(String[] args) {
+
 //		SpringApplication.run(ServerApplication.class, args);
 
-		String secret = "111111111A111111111A111111111A111111111AA111111111A";
-		byte[] key = Base64.getDecoder().decode(secret);
-		System.out.println(Arrays.toString(key));
-		String algorithm = SignatureAlgorithm.HS256.getJcaName();
-		System.out.println(algorithm); // HmacSHA256
-		Key hmacKey = new SecretKeySpec(key, algorithm);
+		// define a secret key as text (base 64 characters only)
+		String secretEncoded = "this+is+the+secret+key+it+must+be+long+enough+AA";
+		System.out.println("secret encoded - platform specific");
+		System.out.println(secretEncoded);
+		System.out.println(Arrays.toString(secretEncoded.getBytes()));
+
+		// decode the text - turn character data to binary data (uniform)
+		byte[] secretDecodedToBase64 = Base64.getDecoder().decode(secretEncoded);
+		System.out.println("secret decoded - cross platform");
+		System.out.println(new String(secretDecodedToBase64));
+		System.out.println(Arrays.toString(secretDecodedToBase64));
+		System.out.println("=================");
+
+		System.out.println("secret encoded");
+		byte[] bytes = Base64.getEncoder().encode(secretDecodedToBase64);
+		String x = new String(bytes);
+		System.out.println(x);
+		System.out.println(Arrays.toString(bytes));
+		System.out.println("======================");
+
+		System.out.println("\nthe HMAC Signature Algorithm");
+		// choose the HMAC (HS256) Algorithm to compute the signature
+		// HMAC stands for hash-based message authentication code
+		// JCA - Java Cryptography Architecture
+		String signatureAlgorithmJcaName = SignatureAlgorithm.HS256.getJcaName();
+		System.out.println("Signature Algorithm: " + signatureAlgorithmJcaName); // HmacSHA256
+		// preparing the key for the token signature (for authentication)
+		// SecretKeySpec - used to construct a SecretKey from a byte array
+		Key hmacKey = new SecretKeySpec(secretDecodedToBase64, signatureAlgorithmJcaName);
 		System.out.println(hmacKey.getAlgorithm());
 		System.out.println(hmacKey.getFormat());
 		System.out.println(Arrays.toString(hmacKey.getEncoded()));
