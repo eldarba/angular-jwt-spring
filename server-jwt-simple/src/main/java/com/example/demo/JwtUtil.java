@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.example.demo.JwtUtil.UserDetails.UserType;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -28,13 +29,6 @@ public class JwtUtil {
 	private Key decodedSecretKey = new SecretKeySpec(Base64.getDecoder().decode(encodedSecretKey),
 			this.signatureAlgorithm);
 
-	public static void main(String[] args) {
-		JwtUtil u = new JwtUtil();
-		UserDetails userDetails = new UserDetails("1245", "aaa@mail", UserType.COMPANY);
-		String t = u.generateToken(userDetails);
-		System.out.println(t);
-	}
-
 	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("userId", userDetails.id);
@@ -42,7 +36,7 @@ public class JwtUtil {
 		return createToken(claims, userDetails.email);
 	}
 
-	public String createToken(Map<String, Object> claims, String subject) {
+	private String createToken(Map<String, Object> claims, String subject) {
 		Instant now = Instant.now();
 		return Jwts.builder().setClaims(claims)
 
@@ -57,34 +51,38 @@ public class JwtUtil {
 				.compact();
 	}
 
-	// ==========================
+	private Claims extractAllClaims(String token) throws ExpiredJwtException {
+		JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(this.decodedSecretKey).build();
+		return jwtParser.parseClaimsJws(token).getBody();
+	}
+
+	/** returns the JWT subject - in our case the email address */
 	public String extractUsername(String token) {
-		return extractClaim(token, Claims::getSubject);
+		return extractAllClaims(token).getSubject();
 	}
 
 	public Date extractExpiration(String token) {
-		return extractClaim(token, Claims::getExpiration);
+		return extractAllClaims(token).getExpiration();
 	}
 
-	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-		final Claims claims = extractAllClaims(token);
-		return claimsResolver.apply(claims);
+	private boolean isTokenExpired(String token) {
+		try {
+			extractAllClaims(token);
+			return false;
+		} catch (ExpiredJwtException e) {
+			return true;
+		}
 	}
 
-	private Claims extractAllClaims(String token) {
-		return Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody();
+	/**
+	 * returns true if the user (email) in the specified token equals the one in the
+	 * specified user details and the token is not expired
+	 */
+	public boolean validateToken(String token, UserDetails userDetails) {
+		final String username = extractUsername(token);
+		return (username.equals(userDetails.email) && !isTokenExpired(token));
 	}
 
-	private Boolean isTokenExpired(String token) {
-		return extractExpiration(token).before(new Date());
-	}
-
-//	public Boolean validateToken(String token, UserDetails userDetails) {
-//		final String username = extractUsername(token);
-//		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-//	}
-
-	// ===============================
 	public static class UserDetails {
 		public String id;
 		public String email;
@@ -101,5 +99,20 @@ public class JwtUtil {
 			ADMIN, COMPANY, CUSTOMER
 		}
 
+	}
+
+	public static void main(String[] args) {
+		JwtUtil util = new JwtUtil();
+		UserDetails userDetails = new UserDetails("1245", "aaa@mail", UserType.COMPANY);
+		String token = util.generateToken(userDetails);
+		System.out.println(token);
+
+		System.out.println(util.extractUsername(token));
+		System.out.println(util.extractAllClaims(token));
+		System.out.println(util.extractUsername(token));
+		System.out.println(util.extractExpiration(token));
+		System.out.println(util.isTokenExpired(token));
+		System.out.println("=====================");
+		System.out.println(util.validateToken(token, new UserDetails("111", "aaa@mail", UserType.ADMIN)));
 	}
 }
