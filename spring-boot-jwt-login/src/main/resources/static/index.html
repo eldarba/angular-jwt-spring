@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+    <style>
+        html,body{
+            height: 100%;
+        }
+        label, input, select, button{
+            width: 100px;
+            display: inline-block;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body style="background-color: black;color: blanchedalmond;">
+
+    <!-- LOGIN -->
+    <div id="login" style="display: block;background-color: darkcyan; height: 50%;">
+        <h1>LOGIN</h1>
+        <fieldset>
+            <div>
+                <label>user name</label>
+                <input id="in-user-name" type="text" value="admin">
+            </div>
+            <div>
+                <label>user email</label>
+                <input id="in-user-email" type="text" value="admin@mail">
+            </div>
+            <div>
+                <label>user type</label>
+                <select id="select-user-type">
+                    <option value="ADMIN">Admin</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="GUEST">Guest</option>
+                </select>
+            </div>
+            <div>
+                <button onclick="login()">Login</button>
+            </div>
+        </fieldset>
+    </div>
+    
+    <!-- API -->
+    <div id="api" style="display: none;background-color: darkcyan;height: 50%;">
+        <h1>API</h1>
+        <fieldset>
+            <legend>dashboard</legend>
+            <button onclick="callGreet()">call greet</button>
+            <br>
+            <br>
+            <div id="greet-response" style="border:2px solid chocolate;height: 25px;width: 200px;"></div>
+        </fieldset>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+
+        function login() {
+            let userName = document.getElementById("in-user-name").value;
+            let userEmail = document.getElementById("in-user-email").value;
+            let userType = document.getElementById("select-user-type").value;
+            console.dir(userType);
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = ()=>{
+                if(xhttp.readyState == 4){
+                    if(xhttp.status >= 200 && xhttp.status <= 299){
+                        document.getElementById("login").style.display="none";
+                        document.getElementById("api").style.display="block";
+                        console.log(xhttp.response);
+                        sessionStorage.setItem("token", xhttp.response);
+                    }else{
+                        let error = JSON.parse(xhttp.response);
+                        console.dir(error);
+                        alert("LOGIN FAILED: " + error.message);
+                    }
+                }
+            };
+
+            xhttp.open("PUT", "http://localhost:8080/login?userEmail=" + userEmail + "&userId=" + userName + "&userType="+userType);
+            xhttp.send();
+        }
+        
+        function logout() {
+            sessionStorage.removeItem("token")
+            document.getElementById("login").style.display="block";
+            document.getElementById("api").style.display="none";
+        }
+
+        function callGreet() {
+            let method = "GET";
+            let url = "http://localhost:8080/api/greet";
+            let headers = [{key:"token", value:sessionStorage.getItem("token")}];
+            let body;
+            let elementId = "greet-response";
+            makeRequest(method, url, headers, body, elementId);
+           
+            // let xhttp = new XMLHttpRequest();
+            // xhttp.onreadystatechange = ()=>{
+            //     if(xhttp.readyState == 4){
+            //         if(xhttp.status >= 200 && xhttp.status <= 299){
+            //             document.getElementById("greet-response").innerHTML = xhttp.response;
+            //         }else{
+            //             let error;
+            //             try {
+            //                 error = JSON.parse(xhttp.response);
+            //                 console.dir(error);
+            //                 alert("callGreet FAILED: " + error.message);
+            //             } catch (error) {
+            //                 error = xhttp.response;                       
+            //                 alert("callGreet FAILED: " + error);
+            //             }
+            //         }
+            //     }
+            // };
+          
+
+            // xhttp.open("GET", "http://localhost:8080/api/greet");
+            // xhttp.setRequestHeader("token", sessionStorage.getItem("token"));
+            // xhttp.send();
+        }
+
+        function makeRequest(httpMethod, url, headers, body, elementId) {
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = ()=>{
+                if(xhttp.readyState == 4){
+                    if(xhttp.status >= 200 && xhttp.status <= 299){
+                        document.getElementById(elementId).innerHTML = xhttp.response;
+                    }else{
+                        let errorMessage;
+                        try {
+                            errorMessage = JSON.parse(xhttp.response).message;
+                        } catch (e) {
+                            errorMessage = xhttp.response;                       
+                        }
+                        alert(errorMessage);
+                    }
+                }
+            };
+          
+
+            xhttp.open(httpMethod, url);
+            if(headers){
+                headers.forEach(header => {
+                    xhttp.setRequestHeader(header.key, header.value);
+                });
+            }
+            if(body){
+                xhttp.send(body);
+            }else{
+                xhttp.send();
+            }
+        }
+        
+    </script>
+</body>
+</html>
