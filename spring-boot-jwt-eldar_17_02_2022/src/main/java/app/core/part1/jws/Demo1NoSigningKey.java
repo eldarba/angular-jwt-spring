@@ -10,6 +10,7 @@ public class Demo1NoSigningKey {
 
 	public static void main(String[] args) {
 
+		// Instant: This class models a single instantaneous point on the time-line.
 		Instant now = Instant.now();
 		Instant expiration = now.plus(30, ChronoUnit.SECONDS);
 
@@ -25,7 +26,7 @@ public class Demo1NoSigningKey {
 
 				.claim("client-id", "101")
 
-				.compact();
+				.compact(); // returns a compact URL-safe JWT string.
 
 		System.out.println(token);
 
